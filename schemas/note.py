@@ -1,6 +1,7 @@
 def noteEntity(item) -> dict:
+    print("item", item)
     return {
-        "id": item["_id"],
+        "id": str(item["_id"]),
         "title": item["title"],
         "content": item["content"],
         "is_important": item["is_important"],    

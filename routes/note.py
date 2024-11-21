@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from bson import ObjectId
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter
@@ -71,3 +71,21 @@ async def update_note(note_id: str, request: Request):
 
     except Exception as e:
         return {"e" : e}
+    
+    
+    
+@note.get("/find_notes/{string}")
+async def find_notes(string: str):
+    try:
+        notes_cursor = conn.notes.notes.find({"title": {"$regex": string, "$options": "i"}})
+        notes_list = notesEntity(notes_cursor)
+        return notes_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@note.get("/get_all_notes/")
+async def get_all_notes():
+    docs = conn.notes.notes.find({})
+    newDocs = notesEntity(docs)
+    
+    return newDocs

@@ -1,198 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Elegant Notes</title>
+    <title>I Notes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/style.css" />
-  </head>
+</head>
 
-  <body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans">
     <!-- Navbar -->
     <nav class="bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg">
-      <div
-        class="container mx-auto px-6 py-4 flex items-center justify-between"
-      >
-        <a class="text-white text-2xl font-bold" href="#">✨ My Notes</a>
-        <div class="hidden md:flex space-x-6 text-white">
-          <a href="#" class="hover:underline">Home</a>
-          <a href="#" class="hover:underline">About</a>
-          <a href="#" class="hover:underline">Contact</a>
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <a class="text-white text-2xl font-bold" href="#">I Notes</a>
+            <div class="hidden md:flex space-x-6 text-white">
+                <a href="/" class="hover:underline">Home</a>
+                <a href="#" class="hover:underline">About</a>
+                <a href="#" class="hover:underline">Contact</a>
+            </div>
+            <button class="md:hidden text-white" id="menu-toggle">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
+                </svg>
+            </button>
         </div>
-        <button class="md:hidden text-white" id="menu-toggle">
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            ></path>
-          </svg>
-        </button>
-      </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container mx-auto mt-10 px-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Add Note Form -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-          <h5 class="text-xl font-semibold text-gray-700">Add Note</h5>
-          <form action="/add/" method="post" class="mt-4">
-            <input
-              type="text"
-              name="title"
-              placeholder="Note Title"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"
-            />
-            <textarea
-              name="content"
-              placeholder="Enter note content"
-              class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"
-            ></textarea>
-            <label class="inline-flex items-center mt-4">
-              <input
-                type="checkbox"
-                name="is_important"
-                class="form-checkbox text-indigo-600"
-              />
-              <span class="ml-2 text-sm text-gray-600">Mark as Important</span>
-            </label>
-            <button
-              type="submit"
-              class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition"
-            >
-              Add Note
-            </button>
-          </form>
-        </div>
-
-        <!-- Notes List -->
-        <div class="col-span-2">
-          <h5 class="text-xl font-semibold text-gray-700">Your Notes</h5>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
-            {% for doc in newDocs %}
-            <div
-              class="relative bg-white shadow-lg rounded-lg p-6 border-t-4 {% if doc.is_important %}border-red-500{% else %}border-indigo-500{% endif %}"
-            >
-              <h6 class="text-lg font-bold text-gray-800">{{ doc.title }}</h6>
-              <div class="mt-2">
-                <button
-                  class="text-sm text-indigo-600 hover:underline"
-                  onclick="toggleReadMore('collapse{{loop.index}}')"
-                >
-                  Read more
-                </button>
-                <button
-                  class="text-sm text-indigo-600 hover:underline float-right"
-                  onclick="openModal('modal{{loop.index}}')"
-                >
-                  Edit
-                </button>
-              </div>
-              <div
-                id="collapse{{loop.index}}"
-                class="hidden mt-4 text-sm text-gray-600"
-              >
-                {{ doc.content }}
-              </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 md:gap-8">
+            <!-- Add Note Form -->
+            <div>
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h5 class="text-xl font-semibold text-gray-700">Add Note</h5>
+                    <form action="/add/" method="post" class="mt-4">
+                        <input type="text" name="title" placeholder="Note Title"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
+                        <textarea name="content" placeholder="Enter note content"
+                            class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"></textarea>
+                        <label class="inline-flex items-center mt-4">
+                            <input type="checkbox" name="is_important" class="form-checkbox text-indigo-600" />
+                            <span class="ml-2 text-sm text-gray-600">Mark as Important</span>
+                        </label>
+                        <button type="submit"
+                            class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition">
+                            Add Note
+                        </button>
+                    </form>
+                </div>
             </div>
+            <!-- Notes List -->
+            <div class="col-span-2">
+                <!-- Search bar container -->
+                <div class="flex justify-end items-center">
+                    <div class="flex items-center border border-gray-300 rounded-lg shadow-lg w-full max-w-md ml-4">
+                        <!-- Search input -->
+                        <input type="text" id="search-input" placeholder="Search for notes..."
+                            onkeyup="fetchNotesByTitle()"
+                            class="w-full px-4 py-2 text-sm text-gray-700 border-r focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-l-lg">
 
-            <!-- Modal -->
-            <div
-              id="modal{{loop.index}}"
-              class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            >
-              <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h5 class="text-lg font-semibold text-gray-700">Edit Note</h5>
-                <form action="/update/{{doc.id}}" method="post" class="mt-4">
-                  <input
-                    type="text"
-                    name="title"
-                    value="{{doc.title}}"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"
-                  />
-                  <textarea
-                    name="content"
-                    class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"
-                  >
-{{doc.content}}</textarea
-                  >
-                  <label class="inline-flex items-center mt-4">
-                    <input
-                      type="checkbox"
-                      name="is_important"
-                      {%
-                      if
-                      doc.is_important
-                      %}checked{%
-                      endif
-                      %}
-                      class="form-checkbox text-indigo-600"
-                    />
-                    <span class="ml-2 text-sm text-gray-600"
-                      >Mark as Important</span
-                    >
-                  </label>
-                  <div class="flex justify-end space-x-2 mt-4">
-                    <button
-                      type="button"
-                      class="btn btn-light btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                      onclick="closeModal('modal{{loop.index}}')"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      class="btn btn-dark btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      Update
-                    </button>
-                  </div>
-                </form>
-              </div>
+                        <!-- Search button -->
+                        <button onclick="fetchNotesByTitle()"
+                            class="px-4 py-2 text-sm text-white bg-indigo-600 rounded-r-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Search
+                        </button>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <!-- Heading -->
+                <h5 class="text-xl font-semibold text-gray-700">Your Notes</h5>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4" id="notes-container">
+                    {% for doc in newDocs %}
+                    <div
+                        class="relative bg-white shadow-lg rounded-lg p-6 border-t-4 {% if doc.is_important %}border-red-500{% else %}border-indigo-500{% endif %}">
+                        <h6 class="text-lg font-bold text-gray-800">{{ doc.title }}</h6>
+                        <div class="mt-2">
+                            <button class="text-sm text-indigo-600 hover:underline"
+                                onclick="toggleReadMore('collapse{{loop.index}}')">
+                                Read note
+                            </button>
+                            <button class="text-sm text-indigo-600 hover:underline float-right"
+                                onclick="openModal('modal{{loop.index}}')">
+                                Edit
+                            </button>
+                        </div>
+                        <div id="collapse{{loop.index}}" class="hidden mt-4 text-sm text-gray-600">
+                            {{ doc.content }}
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div id="modal{{loop.index}}"
+                        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div class="bg-white p-6 rounded-lg shadow-lg w-100">
+                            <h5 class="text-lg font-semibold text-gray-700">Edit Note</h5>
+                            <form action="/update/{{doc.id}}" method="post" class="mt-4">
+                                <label class="inline-flex items-center mb-2 float-end">
+                                    <input type="checkbox" name="is_important" {% if doc.is_important %}checked{% endif
+                                        %} class="form-checkbox text-indigo-600" />
+                                    <span class="ml-2 text-sm text-gray-600">Important</span>
+                                </label>
+                                <input type="text" name="title" value="{{doc.title}}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
+                                <textarea name="content"
+                                    class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none">
+{{doc.content}}</textarea>
+                                <div class="flex justify-end space-x-2 mt-4">
+                                    <button type="button"
+                                        class="btn btn-light btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                        onclick="closeModal('modal{{loop.index}}')">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="btn btn-dark btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        Update
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endfor %}
-          </div>
         </div>
-      </div>
     </div>
 
-    <script>
-      // Toggle Read More Section
-      function toggleReadMore(id) {
-        const element = document.getElementById(id);
-        element.classList.toggle("hidden");
-      }
+    <script src="/static/script.js"></script>
+</body>
 
-      // Open Modal
-      function openModal(id) {
-        const modal = document.getElementById(id);
-        modal.classList.remove("hidden");
-      }
-
-      // Close Modal
-      function closeModal(id) {
-        const modal = document.getElementById(id);
-        modal.classList.add("hidden");
-      }
-
-      // Close Modal on clicking the background
-      window.onclick = function (event) {
-        const modals = document.querySelectorAll(".fixed");
-        modals.forEach((modal) => {
-          if (event.target === modal) {
-            modal.classList.add("hidden");
-          }
-        });
-      };
-    </script>
-  </body>
 </html>
