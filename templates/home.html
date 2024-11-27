@@ -12,7 +12,7 @@
 
 <body class="bg-gray-50 text-gray-800 font-sans">
     <!-- Navbar -->
-    <nav class="bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg">
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-600 shadow-xs">
         <div class="container mx-auto px-6 py-4 flex items-center justify-between">
             <a class="text-white text-2xl font-bold" href="#">I Notes</a>
             <div class="hidden md:flex space-x-6 text-white">
@@ -37,11 +37,12 @@
             <div>
                 <div class="bg-white shadow-lg rounded-lg p-6">
                     <h5 class="text-xl font-semibold text-gray-700">Add Note</h5>
-                    <form action="/add/" method="post" class="mt-4">
+                    <form action="/add/" method="post" class="mt-4" enctype="multipart/form-data">
                         <input type="text" name="title" placeholder="Note Title"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
                         <textarea name="content" placeholder="Enter note content"
                             class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none"></textarea>
+                        <input class="w-full py-2 text-xs cursor-pointer" name="noteFile" type="file">
                         <label class="inline-flex items-center mt-4">
                             <input type="checkbox" name="is_important" class="form-checkbox text-indigo-600" />
                             <span class="ml-2 text-sm text-gray-600">Mark as Important</span>
@@ -76,37 +77,43 @@
                     <h5 class="text-xl font-semibold text-gray-700">Your Notes</h5>
                     <div class="relative w-32">
                         <select id="filter" name="filter"
-                            class="block w-full px-1 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="" disabled selected>All</option>
+                            class="block w-full px-1 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs cursor-pointer">
+                            <option value="ALL">All</option>
                             <option value="ASC">ASEC</option>
                             <option value="DESC">DESC</option>
-                            <option value="IMP">Important Only</option>
-                            <option value="NOT_IMP">Not Important</option>
+                            <option value="IMP" class="text-red-500">Important Only</option>
+                            <option value="NOT_IMP" class="text-indigo-500">Not Important</option>
                         </select>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4" id="notes-container">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-4" id="notes-container">
                     {% for doc in newDocs %}
                     <div
-                        class="relative bg-white shadow-lg rounded-lg p-6 border-t-4 {% if doc.is_important %}border-red-500{% else %}border-indigo-500{% endif %}">
+                        class="relative bg-white shadow-lg rounded-lg px-6 pb-6 pt-4 border-t-4 {% if doc.is_important %}border-red-500{% else %}border-indigo-500{% endif %}">
+                        <div class="flex justify-end">
+                            <button class="text-sm text-indigo-600 hover:underline mr-3"
+                                onclick="openModal('modal{{loop.index}}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="text-sm text-red-600 hover:underline"
+                                onclick="toggleDeleteModal(true, '{{doc.id}}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
                         <h6 class="text-lg font-bold text-gray-800">{{ doc.title }}</h6>
                         <div class="mt-2">
                             <button class="text-sm text-indigo-600 hover:underline"
                                 onclick="toggleReadMore('collapse{{loop.index}}')">
                                 Read note
                             </button>
-                            <button class="text-sm text-red-600 hover:underline float-right"
-                                onclick="toggleDeleteModal(true, '{{doc.id}}')">
-                                Delete
-                            </button>
-                            <button class="text-sm text-indigo-600 hover:underline float-right mr-2"
-                                onclick="openModal('modal{{loop.index}}')">
-                                Edit
-                            </button>
                         </div>
                         <div id="collapse{{loop.index}}" class="hidden mt-4 text-sm text-gray-600">
                             {{ doc.content }}
+                            {% if doc.noteFile %}
+                            <img src="{{doc.noteFile}}" alt="Note file" width="50px"
+                                class="h-auto max-w-full rounded-lg">
+                            {% endif %}
                         </div>
                     </div>
 
@@ -115,7 +122,7 @@
                         class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div class="bg-white p-6 rounded-lg shadow-lg w-100">
                             <h5 class="text-lg font-semibold text-gray-700">Edit Note</h5>
-                            <form action="/update/{{doc.id}}" method="post" class="mt-4">
+                            <form action="/update/{{doc.id}}" method="post" class="mt-4" enctype="multipart/form-data">
                                 <label class="inline-flex items-center mb-2 float-end">
                                     <input type="checkbox" name="is_important" {% if doc.is_important %}checked{% endif
                                         %} class="form-checkbox text-indigo-600" />
@@ -125,6 +132,12 @@
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
                                 <textarea name="content"
                                     class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none">{{doc.content}}</textarea>
+                                {% if doc.noteFile %}
+                                <img src="{{doc.noteFile}}" alt="Note file" width="50px"
+                                    class="h-auto max-w-full rounded-lg">
+                                {% endif %}
+                                <input class="w-full py-2 text-xs cursor-pointer" name="noteFile" type="file">
+
                                 <div class="flex justify-end space-x-2 mt-4">
                                     <button type="button"
                                         class="btn btn-light btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"

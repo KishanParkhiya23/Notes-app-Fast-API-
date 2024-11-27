@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     $(".fixed").each(function (event) {
         if (event.target === this) {
             $(this).addClass("hidden");
@@ -13,6 +12,8 @@ $(document).ready(function () {
             filterObject['sort'] = filter;
         } else if (['IMP', 'NOT_IMP'].includes(filter)) {
             filterObject['important'] = filter == "IMP" ? true : false;
+        } else if (filter == "ALL") {
+            filterObject['all'] = true
         }
 
         const url = filterObject && Object.keys(filterObject).length ? `/get_all_notes/?filter=${encodeURIComponent(JSON.stringify(filterObject))}` : `/get_all_notes/`;
@@ -38,7 +39,6 @@ $(document).ready(function () {
             }
         });
     });
-
 });
 function toggleReadMore(id) {
     $(`#${id}`).toggleClass("hidden");
@@ -56,32 +56,38 @@ function createNotesHTML(notes) {
     const fragment = $(document.createDocumentFragment());
     notes.forEach((note, index) => {
         const noteElement = $(`
-            <div class="relative bg-white shadow-lg rounded-lg p-6 border-t-4 ${note.is_important ? "border-red-500" : "border-indigo-500"}">
+            <div class="relative bg-white shadow-lg rounded-lg px-6 pb-6 pt-4 border-t-4 ${note.is_important ? "border-red-500" : "border-indigo-500"}">
+                <div class="flex justify-end">
+                    <button class="text-sm text-indigo-600 hover:underline mr-3" onclick="openModal('modal${index}')">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="text-sm text-red-600 hover:underline" onclick="toggleDeleteModal(true, '${note.id}')">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
                 <h6 class="text-lg font-bold text-gray-800">${note.title}</h6>
                 <div class="mt-2">
                     <button class="text-sm text-indigo-600 hover:underline" onclick="toggleReadMore('collapse${index}')">
                         Read note
                     </button>
-                    <button class="text-sm text-red-600 hover:underline float-right" onclick="toggleDeleteModal(true, '${note.id}')">
-                        Delete
-                    </button>
-                    <button class="text-sm text-indigo-600 hover:underline float-right mr-2" onclick="openModal('modal${index}')">
-                        Edit
-                    </button>
                 </div>
                 <div id="collapse${index}" class="hidden mt-4 text-sm text-gray-600">
                     ${note.content}
+                    ${note.noteFile}
+                    ${note.noteFile ? `<img src="${note.noteFile}" alt="Note file" width="50px" class="h-auto max-w-full rounded-lg">` : ""}
                 </div>
                 <div id="modal${index}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div class="bg-white p-6 rounded-lg shadow-lg w-100">
                         <h5 class="text-lg font-semibold text-gray-700">Edit Note</h5>
-                        <form action="/update/${note.id}" method="post" class="mt-4">
+                        <form action="/update/${note.id}" method="post" class="mt-4" enctype="multipart/form-data">
                             <label class="inline-flex items-center mb-2 float-end">
                                 <input type="checkbox" name="is_important" ${note.is_important ? "checked" : ""} class="form-checkbox text-indigo-600" />
                                 <span class="ml-2 text-sm text-gray-600">Important</span>
                             </label>
                             <input type="text" name="title" value="${note.title}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
                             <textarea name="content" class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none">${note.content}</textarea>
+                            ${note.noteFile ? `<img src="${note.noteFile}" alt="Note file" width="50px" class="h-auto max-w-full rounded-lg">` : ""}
+                            <input class="w-full py-2 text-xs cursor-pointer" name="noteFile" type="file">
                             <div class="flex justify-end space-x-2 mt-4">
                                 <button type="button" class="btn btn-light btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" onclick="closeModal('modal${index}')">
                                     Cancel
@@ -94,11 +100,10 @@ function createNotesHTML(notes) {
                     </div>
                 </div>
             </div>
-        `);
+            `);
 
         fragment.append(noteElement);
     });
-
     return fragment;
 }
 
@@ -131,7 +136,7 @@ function toggleDeleteModal(show, noteId) {
     const deleteBtn = $("#deleteBtn");
 
     deleteBtn.off("click").on("click", function () {
-        window.location.href = `/delete/${noteId}`;
+        window.location.href = `/ delete/${noteId}`;
     });
 
     if (show) {
