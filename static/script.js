@@ -5,6 +5,10 @@ $(document).ready(function () {
         }
     });
 
+    $("#closeUpdateModal").on('click', function () {
+        $(`#UpdateModal`).addClass("hidden");
+    })
+
     $('#filter').on("change", function () {
         var filter = $(this).val();
         var filterObject = {};
@@ -40,16 +44,43 @@ $(document).ready(function () {
         });
     });
 });
+
+function hideNoteImage() {
+    $("#modal-noteImg").css("display", $("#modal-deleteFile").is(":checked") ? "none" : "block");
+}
+
 function toggleReadMore(id) {
     $(`#${id}`).toggleClass("hidden");
 }
 
-function openModal(id) {
-    $(`#${id}`).removeClass("hidden");
-}
+function openUpdateModal(id) {
+    $.ajax({
+        url: `/find_notes_by_id/${id}`,
+        method: "GET",
+        dataType: "json",
+        success: function (response) {
+            if (response) {
+                $("#modal-form").attr('action', `/update/${response.id}`)
+                $("#modal-is_important").attr('checked', response.is_important)
+                $("#modal-title").val(response.title)
+                $("#modal-content").text(response.content)
+                if (response.noteFile) {
+                    let content = ``
+                    content += `<input type="checkbox" name="deleteFile" id="modal-deleteFile" value="DELETE" class="mr-2 mb-2" onchange="hideNoteImage()">`
+                    content += `<label for="modal-deleteFile">Remove</label>`
+                    content += `<img src="${response.noteFile}" id="modal-noteImg" alt="Note file" width="100px" class="h-auto max-w-full rounded-lg"></img>`
+                    $("#modal-image-section").empty().append(content)
+                }
+                $(`#UpdateModal`).removeClass("hidden");
+            } else {
+                console.error("No data received.");
+            }
+        },
+        error: function (xhr, status, error) {
+            alert("An error occurred: " + xhr.responseText);
+        },
+    });
 
-function closeModal(id) {
-    $(`#${id}`).addClass("hidden");
 }
 
 function createNotesHTML(notes) {
@@ -58,7 +89,7 @@ function createNotesHTML(notes) {
         const noteElement = $(`
             <div class="relative bg-white shadow-lg rounded-lg px-6 pb-6 pt-4 border-t-4 ${note.is_important ? "border-red-500" : "border-indigo-500"}">
                 <div class="flex justify-end">
-                    <button class="text-sm text-indigo-600 hover:underline mr-3" onclick="openModal('modal${index}')">
+                    <button class="text-sm text-indigo-600 hover:underline mr-3" onclick="openUpdateModal('${note.id}')">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button class="text-sm text-red-600 hover:underline" onclick="toggleDeleteModal(true, '${note.id}')">
@@ -75,29 +106,6 @@ function createNotesHTML(notes) {
                     ${note.content}
                     ${note.noteFile}
                     ${note.noteFile ? `<img src="${note.noteFile}" alt="Note file" width="50px" class="h-auto max-w-full rounded-lg">` : ""}
-                </div>
-                <div id="modal${index}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div class="bg-white p-6 rounded-lg shadow-lg w-100">
-                        <h5 class="text-lg font-semibold text-gray-700">Edit Note</h5>
-                        <form action="/update/${note.id}" method="post" class="mt-4" enctype="multipart/form-data">
-                            <label class="inline-flex items-center mb-2 float-end">
-                                <input type="checkbox" name="is_important" ${note.is_important ? "checked" : ""} class="form-checkbox text-indigo-600" />
-                                <span class="ml-2 text-sm text-gray-600">Important</span>
-                            </label>
-                            <input type="text" name="title" value="${note.title}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none" />
-                            <textarea name="content" class="w-full px-4 py-2 mt-4 border border-gray-300 rounded-lg focus:ring focus:ring-indigo-300 focus:outline-none">${note.content}</textarea>
-                            ${note.noteFile ? `<img src="${note.noteFile}" alt="Note file" width="50px" class="h-auto max-w-full rounded-lg">` : ""}
-                            <input class="w-full py-2 text-xs cursor-pointer" name="noteFile" type="file">
-                            <div class="flex justify-end space-x-2 mt-4">
-                                <button type="button" class="btn btn-light btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" onclick="closeModal('modal${index}')">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="btn btn-dark btn-sm mt-3 pt-1 pb-2 px-3 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    Update
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
             </div>
             `);
